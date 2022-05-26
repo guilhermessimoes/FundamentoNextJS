@@ -1,8 +1,21 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import { SubscribeButton } from '../components/SubscribeButton'
 import { stripe } from '../services/stripe'
 import styles from './home.module.scss'
+
+/* 3 formas de fazer chamada de API no next
+// Server-side 
+// Client-side  = Indexicação Precisa de dados dinaminamicos do usuario em tempo real.
+// static stie generation = Utiuliza mais nos casos que utiliza para 
+compartilha o mesmo html com todos os usuarios, paginas de produtos no ecommecer.
+
+Exemplo: 
+
+Post de um blog
+// o conteudo ele pode ser (SSG)
+// o comentarios (Client-Side)
+*/
 
 interface HomeProps  {
   product: {
@@ -35,7 +48,7 @@ export default function Home({product}: HomeProps) {
 }
 
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const price = await stripe.prices.retrieve('price_1L3UhBDovDByEsZ5GV1XUtcr', {
     expand: ['product']
   })
@@ -50,6 +63,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props:{
       product
-    }
+    },
+    revalidate: 60 * 60 *24, // 24 Hours
   }
 }
